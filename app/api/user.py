@@ -7,7 +7,9 @@ mod=Blueprint('user',__name__, url_prefix='/user')
 
 def id_by_email(email):
     res = db.query("SELECT id FROM users where email=%s",(email))
-    return res[0]['id']
+    if res.__len__() > 0:
+        return res[0]['id']
+    return -1
 
 def user_by_email(email):
     res = db.query("SELECT * FROM users where email=%s",(email))
@@ -64,6 +66,8 @@ def create():
     resp ={}
     resp["name"] = json["name"]
     resp["email"] = json["email"]
+    if id_by_email(json['email']) != -1:
+        return send_resp({}, "User already exists")
     if "isAnonymous" in json:
         resp["isAnonymous"] = getBool(json["isAnonymous"])
     else:
@@ -88,7 +92,7 @@ def create():
 @mod.route("/details/",methods=["GET"])
 def details():
     json = request.json
-    return send_resp(user_details(json["user"], 'email'))
+    return send_resp(user_details(json["user"], 'email'), "No such user found")
 
 @mod.route("/follow/",methods=["POST"])
 def follow():
@@ -145,5 +149,7 @@ def unfollow():
 def updateprofile():
     json = request.json
     check_required(json, ['about', 'user', 'name'])
+    if id_by_email(json['user']) == -1:
+        return send_resp({}, "No such user found")
     db.insert("UPDATE users SET about=%s, name=%s where email=%s", (json['about'], json['name'], json['user']))
     return send_resp(user_details(json['user'], 'email'))

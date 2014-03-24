@@ -50,18 +50,19 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `mydb`.`threads` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`threads` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `tid` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(145) NOT NULL,
   `date` TIMESTAMP NOT NULL,
   `message` TEXT NOT NULL,
   `forum_id` INT UNSIGNED NOT NULL,
   `user_id` INT UNSIGNED NOT NULL,
   `deleted` TINYINT NOT NULL DEFAULT 0,
-  `closed` VARCHAR(45) NOT NULL DEFAULT 0,
-  `slug` VARCHAR(45) NOT NULL,
+  `closed` TINYINT NOT NULL DEFAULT 0,
+  `slug` VARCHAR(65) NOT NULL,
   `likes` INT UNSIGNED NOT NULL DEFAULT 0,
   `dislikes` INT UNSIGNED NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
+  `points` INT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (`tid`),
   INDEX `fk_topics_forums_idx` (`forum_id` ASC),
   INDEX `fk_topics_users1_idx` (`user_id` ASC),
   CONSTRAINT `fk_topics_forums`
@@ -83,7 +84,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `mydb`.`posts` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`posts` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `pid` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `message` TEXT NOT NULL,
   `date` TIMESTAMP NOT NULL,
   `thread_id` INT UNSIGNED NOT NULL,
@@ -97,14 +98,14 @@ CREATE TABLE IF NOT EXISTS `mydb`.`posts` (
   `forums_id` INT UNSIGNED NOT NULL,
   `likes` INT UNSIGNED NOT NULL DEFAULT 0,
   `dislikes` INT UNSIGNED NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`pid`),
   INDEX `fk_replies_topics1_idx` (`thread_id` ASC),
   INDEX `fk_replies_users1_idx` (`user_id` ASC),
   INDEX `fk_posts_posts1_idx` (`parent` ASC),
   INDEX `fk_posts_forums1_idx` (`forums_id` ASC),
   CONSTRAINT `fk_replies_topics1`
     FOREIGN KEY (`thread_id`)
-    REFERENCES `mydb`.`threads` (`id`)
+    REFERENCES `mydb`.`threads` (`tid`)
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_replies_users1`
@@ -114,7 +115,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`posts` (
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_posts_posts1`
     FOREIGN KEY (`parent`)
-    REFERENCES `mydb`.`posts` (`id`)
+    REFERENCES `mydb`.`posts` (`pid`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_posts_forums1`
@@ -144,7 +145,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`subscriptions` (
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_users_has_threads_threads1`
     FOREIGN KEY (`threads_id`)
-    REFERENCES `mydb`.`threads` (`id`)
+    REFERENCES `mydb`.`threads` (`tid`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
