@@ -44,6 +44,15 @@ test_thread_create2=`curl  -X POST -H "Content-Type: application/json" -d  '{"fo
 test_thread2_details=`curl -X GET -H "Content-Type: application/json" -d  '{"thread" : "1", "related":["user", "forum"]}'  localhost:5000/thread/details/ 2>/dev/null`
 test_thread2_details=`curl -X GET -H "Content-Type: application/json" -d  '{"thread" : "2", "related":["user", "forum"]}'  localhost:5000/thread/details/ 2>/dev/null`
 
+
+test_forum_listthreads1=`curl -X GET -H "Content-Type: application/json" -d  '{"forum" : "fst_frm",  "since":"2013-02-01 00:00:00","related":["user", "forum"], "limit":"1"}'  localhost:5000/forum/listThreads/ 2>/dev/null`
+
+test_forum_listthreads2=`curl -X GET -H "Content-Type: application/json" -d  '{"forum" : "fst_frm",  "since":"2014-02-01 02:00:01","related":["user", "forum"], "limit":"2"}'  localhost:5000/forum/listThreads/ 2>/dev/null`
+
+test_forum_listthreads3=`curl -X GET -H "Content-Type: application/json" -d  '{"forum" : "fst_frm",  "since":"2013-02-01 02:00:01","related":["user", "forum"], "limit":"5"}'  localhost:5000/forum/listThreads/ 2>/dev/null`
+
+test_forum_listthreads4=`curl -X GET -H "Content-Type: application/json" -d  '{"forum" : "fst_frm",  "since":"2013-02-01 02:00:01","related":["user", "forum"], "limit":"5", "order" : "asc"}'  localhost:5000/forum/listThreads/ 2>/dev/null`
+
 read -d '' success_create_user1 << "EOF"
 {
   "code": 0, 
@@ -288,6 +297,216 @@ EOF
 
 
 
+read -d '' success_forum_listthreads1 << "EOF"
+{
+  "code": 0, 
+  "response": [
+    {
+      "date": "Sat, 01 Feb 2014 02:00:01 GMT", 
+      "dislikes": 0, 
+      "forum": {
+        "id": 1, 
+        "name": "first_forum", 
+        "short_name": "fst_frm", 
+        "user": "example@mail.ru"
+      }, 
+      "id": 2, 
+      "isClosed": true, 
+      "isDeleted": false, 
+      "likes": 0, 
+      "message": "ho ho heck", 
+      "points": 0, 
+      "posts": 0, 
+      "slug": "Scondthread", 
+      "title": "Second thread here", 
+      "user": {
+        "email": "example2@mail.ru", 
+        "followers": [], 
+        "following": [], 
+        "id": 2, 
+        "isAnonymous": true, 
+        "name": null, 
+        "subscriptions": []
+      }
+    }
+  ]
+}
+EOF
+
+
+read -d '' success_forum_listthreads2 << "EOF"
+{
+  "code": 0, 
+  "response": [
+    {
+      "date": "Sat, 01 Feb 2014 02:00:01 GMT", 
+      "dislikes": 0, 
+      "forum": {
+        "id": 1, 
+        "name": "first_forum", 
+        "short_name": "fst_frm", 
+        "user": "example@mail.ru"
+      }, 
+      "id": 2, 
+      "isClosed": true, 
+      "isDeleted": false, 
+      "likes": 0, 
+      "message": "ho ho heck", 
+      "points": 0, 
+      "posts": 0, 
+      "slug": "Scondthread", 
+      "title": "Second thread here", 
+      "user": {
+        "email": "example2@mail.ru", 
+        "followers": [], 
+        "following": [], 
+        "id": 2, 
+        "isAnonymous": true, 
+        "name": null, 
+        "subscriptions": []
+      }
+    }
+  ]
+}
+EOF
+
+
+
+read -d '' success_forum_listthreads3 << "EOF"
+{
+  "code": 0, 
+  "response": [
+    {
+      "date": "Sat, 01 Feb 2014 02:00:01 GMT", 
+      "dislikes": 0, 
+      "forum": {
+        "id": 1, 
+        "name": "first_forum", 
+        "short_name": "fst_frm", 
+        "user": "example@mail.ru"
+      }, 
+      "id": 2, 
+      "isClosed": true, 
+      "isDeleted": false, 
+      "likes": 0, 
+      "message": "ho ho heck", 
+      "points": 0, 
+      "posts": 0, 
+      "slug": "Scondthread", 
+      "title": "Second thread here", 
+      "user": {
+        "email": "example2@mail.ru", 
+        "followers": [], 
+        "following": [], 
+        "id": 2, 
+        "isAnonymous": true, 
+        "name": null, 
+        "subscriptions": []
+      }
+    }, 
+    {
+      "date": "Wed, 01 Jan 2014 00:00:01 GMT", 
+      "dislikes": 0, 
+      "forum": {
+        "id": 1, 
+        "name": "first_forum", 
+        "short_name": "fst_frm", 
+        "user": "example@mail.ru"
+      }, 
+      "id": 1, 
+      "isClosed": true, 
+      "isDeleted": true, 
+      "likes": 0, 
+      "message": "hey hey hey hey!", 
+      "points": 0, 
+      "posts": 0, 
+      "slug": "Threadwithsufficientlylargetitle", 
+      "title": "Thread With Sufficiently Large Title", 
+      "user": {
+        "about": "sweetnes", 
+        "email": "example@mail.ru", 
+        "followers": [], 
+        "following": [], 
+        "id": 1, 
+        "isAnonymous": false, 
+        "name": "WOWOWO", 
+        "subscriptions": [], 
+        "username": "user1"
+      }
+    }
+  ]
+}
+EOF
+
+read -d '' success_forum_listthreads4 << "EOF"
+{
+  "code": 0, 
+  "response": [
+    {
+      "date": "Wed, 01 Jan 2014 00:00:01 GMT", 
+      "dislikes": 0, 
+      "forum": {
+        "id": 1, 
+        "name": "first_forum", 
+        "short_name": "fst_frm", 
+        "user": "example@mail.ru"
+      }, 
+      "id": 1, 
+      "isClosed": true, 
+      "isDeleted": true, 
+      "likes": 0, 
+      "message": "hey hey hey hey!", 
+      "points": 0, 
+      "posts": 0, 
+      "slug": "Threadwithsufficientlylargetitle", 
+      "title": "Thread With Sufficiently Large Title", 
+      "user": {
+        "about": "sweetnes", 
+        "email": "example@mail.ru", 
+        "followers": [], 
+        "following": [], 
+        "id": 1, 
+        "isAnonymous": false, 
+        "name": "WOWOWO", 
+        "subscriptions": [], 
+        "username": "user1"
+      }
+    }, 
+    {
+      "date": "Sat, 01 Feb 2014 02:00:01 GMT", 
+      "dislikes": 0, 
+      "forum": {
+        "id": 1, 
+        "name": "first_forum", 
+        "short_name": "fst_frm", 
+        "user": "example@mail.ru"
+      }, 
+      "id": 2, 
+      "isClosed": true, 
+      "isDeleted": false, 
+      "likes": 0, 
+      "message": "ho ho heck", 
+      "points": 0, 
+      "posts": 0, 
+      "slug": "Scondthread", 
+      "title": "Second thread here", 
+      "user": {
+        "email": "example2@mail.ru", 
+        "followers": [], 
+        "following": [], 
+        "id": 2, 
+        "isAnonymous": true, 
+        "name": null, 
+        "subscriptions": []
+      }
+    }
+  ]
+}
+EOF
+
+
+
+
 check "$test_create_user1" "$success_create_user1" "user creation"
 
 check "$test_create_anon_user" "$success_create_anon_user" "anon user creation"
@@ -308,6 +527,12 @@ check "$test_thread_create2" "$success_thread_create2" "thread create 2"
 
 check "$test_thread1_details" "$success_thread1_details" "thread 1 details "
 check "$test_thread2_details" "$success_thread2_details" "thread 2 details "
+
+
+check "$test_forum_listthreads1" "$success_forum_listthreads1" "forum listthreads limit 1 order desc  "
+check "$test_forum_listthreads2" "$success_forum_listthreads2" "forum listthreads limit 2 order desc   "
+check "$test_forum_listthreads3" "$success_forum_listthreads3" "forum listthreads limit 5 order desc   "
+check "$test_forum_listthreads4" "$success_forum_listthreads4" "forum listthreads limit 5 order asc  "
 
 
 
