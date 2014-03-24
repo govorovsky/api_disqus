@@ -31,9 +31,9 @@ def listPosts():
 
 
 @mod.route("/open/",methods=["POST"])
-def open(action):
+def open():
     json = request.json
-    thread_id = json["thread"]
+ # thread_id = json["thread"]
     resp = {u'code': 0, u'response': json}
     return jsonify(resp)
 
