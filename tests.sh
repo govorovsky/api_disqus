@@ -18,12 +18,30 @@ fi
 
 }
 
+function follow() {
+    echo "User $1 now following user $2" 
+}
+
 # prepare DB
 mysql -u root -p'qazxsw12'  -e  "source schema.sql" 
 
 
 test_create_user1=`curl -X POST -H "Content-Type: application/json" -d  '{"username": "user1", "about": "hello im user1",  "email": "example@mail.ru", "name" : "User1Name"}' localhost:5000/user/create/ 2>/dev/null`
 test_create_user2=`curl -X POST -H "Content-Type: application/json" -d  '{"username": "user2", "about": "hello im user2",  "email": "example2@mail.ru", "name" : "User1Name", "isAnonymous" : "True"}' localhost:5000/user/create/ 2>/dev/null`
+
+create_user3=`curl -X POST -H "Content-Type: application/json" -d  '{"username": "user3", "about": "hello im user3",  "email": "example3@mail.ru", "name" : "User3Name"}' localhost:5000/user/create/ 2>/dev/null`
+create_user4=`curl -X POST -H "Content-Type: application/json" -d  '{"username": "user4", "about": "hello im user4",  "email": "example4@mail.ru", "name" : "User4Name"}' localhost:5000/user/create/ 2>/dev/null`
+create_user5=`curl -X POST -H "Content-Type: application/json" -d  '{"username": "user5", "about": "hello im user5",  "email": "example5@mail.ru", "name" : "User5Name"}' localhost:5000/user/create/ 2>/dev/null`
+
+create_follow1=`curl -X POST -H "Content-Type: application/json" -d  '{"follower": "example5@mail.ru", "followee": "example@mail.ru"}' localhost:5000/user/follow/ 2>/dev/null`
+create_follow2=`curl -X POST -H "Content-Type: application/json" -d  '{"follower": "example4@mail.ru", "followee": "example@mail.ru"}' localhost:5000/user/follow/ 2>/dev/null`
+
+test_list_followers=`curl -X GET "localhost:5000/user/listFollowers/?user=example@mail.ru&since_id=4&order=asc" 2>/dev/null`
+test_list_followers1=`curl -X GET "localhost:5000/user/listFollowers/?user=example@mail.ru&limit=1&order=desc" 2>/dev/null`
+#test_list_followers2=`curl -X GET "localhost:5000/user/listFollowers/?user=example@mail.ru&since_id=4&order=desc" 2>/dev/null`
+
+unfollow1=`curl -X POST -H "Content-Type: application/json" -d  '{"follower": "example5@mail.ru", "followee": "example@mail.ru"}' localhost:5000/user/unfollow/ 2>/dev/null`
+unfollow2=`curl -X POST -H "Content-Type: application/json" -d  '{"follower": "example4@mail.ru", "followee": "example@mail.ru"}' localhost:5000/user/unfollow/ 2>/dev/null`
 
 test_create_anon_user=`curl -X POST -H "Content-Type: application/json" -d  '{"isAnonymous": "True" ,"email": "example1@mail.ru", "name" : ""}' localhost:5000/user/create/ 2>/dev/null`
 
@@ -33,25 +51,23 @@ test_update_user404=`curl -X POST -H "Content-Type: application/json" -d  '{ "us
 
 test_forum_create=`curl -X POST -H "Content-Type: application/json" -d  '{ "user" : "example@mail.ru", "name" : "first_forum", "short_name" : "fst_frm"}'  localhost:5000/forum/create/ 2>/dev/null`
 
-test_forum_details=`curl -X GET -H "Content-Type: application/json" -d  '{"forum" : "fst_frm", "related":["user"]}'  localhost:5000/forum/details/ 2>/dev/null`
+test_forum_details=`curl -X GET  "localhost:5000/forum/details/?forum=fst_frm&related=user" 2>/dev/null`
 
-test_forum_details_norelated=`curl -X GET -H "Content-Type: application/json" -d  '{"forum" : "fst_frm", "related":[]}'  localhost:5000/forum/details/ 2>/dev/null`
+test_forum_details_norelated=`curl -X GET  "localhost:5000/forum/details/?forum=fst_frm&ralted=" 2>/dev/null`
 
 test_thread_create1=`curl  -X POST -H "Content-Type: application/json" -d  '{"forum": "fst_frm", "title": "Thread With Sufficiently Large Title", "isClosed": "True", "user": "example@mail.ru", "date": "2014-01-01 00:00:01", "message": "hey hey hey hey!", "slug": "Threadwithsufficientlylargetitle", "isDeleted": "True"}' localhost:5000/thread/create/ 2>/dev/null`
 
 test_thread_create2=`curl  -X POST -H "Content-Type: application/json" -d  '{"forum": "fst_frm", "title": "Second thread here", "isClosed": "True", "user": "example2@mail.ru", "date": "2014-02-01 02:00:01", "message": "ho ho heck", "slug": "Scondthread", "isDeleted": "False"}' localhost:5000/thread/create/ 2>/dev/null`
 
-test_thread2_details=`curl -X GET -H "Content-Type: application/json" -d  '{"thread" : "1", "related":["user", "forum"]}'  localhost:5000/thread/details/ 2>/dev/null`
-test_thread2_details=`curl -X GET -H "Content-Type: application/json" -d  '{"thread" : "2", "related":["user", "forum"]}'  localhost:5000/thread/details/ 2>/dev/null`
+test_thread1_details=`curl -X GET "localhost:5000/thread/details/?thread=1&related=user&related=forum" 2>/dev/null`
+test_thread2_details=`curl -X GET "localhost:5000/thread/details/?thread=2&related=user&related=forum" 2>/dev/null`
 
 
-test_forum_listthreads1=`curl -X GET -H "Content-Type: application/json" -d  '{"forum" : "fst_frm",  "since":"2013-02-01 00:00:00","related":["user", "forum"], "limit":"1"}'  localhost:5000/forum/listThreads/ 2>/dev/null`
+test_forum_listthreads1=`curl -X GET "localhost:5000/forum/listThreads/?since=2013-02-01+00:00:00&related=user&related=forum&limit=1&forum=fst_frm" 2>/dev/null`
+test_forum_listthreads2=`curl -X GET "localhost:5000/forum/listThreads/?since=2014-02-01+02:00:01&related=user&related=forum&limit=2&forum=fst_frm" 2>/dev/null`
+test_forum_listthreads3=`curl -X GET "localhost:5000/forum/listThreads/?since=2013-02-01+02:00:01&related=user&related=forum&limit=5&forum=fst_frm" 2>/dev/null`
+test_forum_listthreads4=`curl -X GET "localhost:5000/forum/listThreads/?order=asc&since=2013-02-01+02:00:01&related=user&related=forum&limit=5&forum=fst_frm" 2>/dev/null`
 
-test_forum_listthreads2=`curl -X GET -H "Content-Type: application/json" -d  '{"forum" : "fst_frm",  "since":"2014-02-01 02:00:01","related":["user", "forum"], "limit":"2"}'  localhost:5000/forum/listThreads/ 2>/dev/null`
-
-test_forum_listthreads3=`curl -X GET -H "Content-Type: application/json" -d  '{"forum" : "fst_frm",  "since":"2013-02-01 02:00:01","related":["user", "forum"], "limit":"5"}'  localhost:5000/forum/listThreads/ 2>/dev/null`
-
-test_forum_listthreads4=`curl -X GET -H "Content-Type: application/json" -d  '{"forum" : "fst_frm",  "since":"2013-02-01 02:00:01","related":["user", "forum"], "limit":"5", "order" : "asc"}'  localhost:5000/forum/listThreads/ 2>/dev/null`
 
 read -d '' success_create_user1 << "EOF"
 {
@@ -163,7 +179,7 @@ read -d '' success_create_anon_user << "EOF"
   "code": 0, 
   "response": {
     "email": "example1@mail.ru", 
-    "id": 3, 
+    "id": 6, 
     "isAnonymous": true, 
     "name": null
   }
@@ -224,7 +240,7 @@ EOF
 
 
 
-read -d '' success_thread2_details << "EOF"
+read -d '' success_thread1_details << "EOF"
 {
   "code": 0, 
   "response": {
@@ -505,11 +521,70 @@ read -d '' success_forum_listthreads4 << "EOF"
 EOF
 
 
+read -d '' success_list_followers << "EOF"
+{
+  "code": 0, 
+  "response": [
+    {
+      "about": "hello im user4", 
+      "email": "example4@mail.ru", 
+      "followers": [], 
+      "following": [
+        "example@mail.ru"
+      ], 
+      "id": 4, 
+      "isAnonymous": false, 
+      "name": "User4Name", 
+      "subscriptions": [], 
+      "username": "user4"
+    }, 
+    {
+      "about": "hello im user5", 
+      "email": "example5@mail.ru", 
+      "followers": [], 
+      "following": [
+        "example@mail.ru"
+      ], 
+      "id": 5, 
+      "isAnonymous": false, 
+      "name": "User5Name", 
+      "subscriptions": [], 
+      "username": "user5"
+    }
+  ]
+}
+EOF
+
+read -d '' success_list_followers1 << "EOF"
+{
+  "code": 0, 
+  "response": [
+    {
+      "about": "hello im user5", 
+      "email": "example5@mail.ru", 
+      "followers": [], 
+      "following": [
+        "example@mail.ru"
+      ], 
+      "id": 5, 
+      "isAnonymous": false, 
+      "name": "User5Name", 
+      "subscriptions": [], 
+      "username": "user5"
+    }
+  ]
+}
+EOF
 
 
 check "$test_create_user1" "$success_create_user1" "user creation"
 
 check "$test_create_anon_user" "$success_create_anon_user" "anon user creation"
+# happy following beach
+check "$test_list_followers" "$success_list_followers" "list followers for user 1  "
+check "$test_list_followers1" "$success_list_followers1" "list followers for user 1 since_id "
+# bye bye
+
 
 check "$test_update_user" "$success_update_user" "user update"
 
@@ -533,6 +608,7 @@ check "$test_forum_listthreads1" "$success_forum_listthreads1" "forum listthread
 check "$test_forum_listthreads2" "$success_forum_listthreads2" "forum listthreads limit 2 order desc   "
 check "$test_forum_listthreads3" "$success_forum_listthreads3" "forum listthreads limit 5 order desc   "
 check "$test_forum_listthreads4" "$success_forum_listthreads4" "forum listthreads limit 5 order asc  "
+
 
 
 

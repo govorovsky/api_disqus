@@ -8,13 +8,21 @@ from app.utils.common_utils import *
 
 mod=Blueprint('thread',__name__, url_prefix='/thread')
 
+def Moderate(json,action):
+    json = getJson(request)
+    thread_id = json['thread']
+    act = 1 if (action == 'close' or action == 'remove' ) else 0
+    target = 'closed' if ( action == 'close' or action == 'open') else 'deleted'
+    if(isExist(json['thread'])):
+        db.insert("UPDATE threads SET %s=%s " % (target,act) +" where tid=%s", thread_id)
+        return send_resp(json)
+    else:
+        return send_resp({}, "No such thread found")
+
 
 @mod.route("/close/",methods=["POST"])
 def close():
-    json = request.json
-    resp = {u'code': 0, u'response': json}
-    return jsonify(resp)
-
+    return OpenClose(getJson(request),'close')
 
 def count_posts(thread):
     thr = db.query("SELECT COUNT(*) as cnt from posts WHERE thread_id=%s AND spam=0 AND deleted=0 AND approved=1", (thread))
@@ -23,30 +31,34 @@ def count_posts(thread):
 
 
 def thread_details(thread,related=None):
-    thr = db.query("SELECT * from threads  INNER JOIN users ON threads.user_id = users.id WHERE tid=%s", (thread))
+    thr = db.query("SELECT * from threads WHERE tid=%s", (thread))
     resp = {}
     if thr.__len__() !=0:
+        if related is not None: # place for optimization
+            if 'user' in related:
+                resp['user'] = user_details(thr[0]['user_id'],'id')
+            if 'forum' in related:
+                resp['forum'] = forum_details(sname_by_id(thr[0]['forum_id']))
+        if 'user' not in resp:
+            resp['user'] = email_by_id(thr[0]['user_id'])
+        if 'forum' not in resp:
+            resp['forum'] = sname_by_id(thr[0]['forum_id'])
         resp['date'] = thr[0]['date']
         resp['title'] = thr[0]['title']
         resp['message'] = thr[0]['message']
-        resp['user'] = thr[0]['email']
         resp['dislikes'] = thr[0]['dislikes']
         resp['likes'] = thr[0]['likes']
-        resp['points'] = thr[0]['points']
-        resp['forum'] = sname_by_id(thr[0]['forum_id'])
+        resp['points'] = thr[0]['likes'] - thr[0]['dislikes']
         resp['slug'] = thr[0]['slug']
         resp['id'] = thr[0]['tid']
         resp['isClosed'] = bool(thr[0]['closed'])
         resp['isDeleted'] = bool(thr[0]['deleted'])
         resp['posts'] = count_posts(thr[0]['tid'])
-        if related is not None: # place for optimization
-            if 'user' in related:
-                resp['user'] = user_details(thr[0]['email'],'email')
-            if 'forum' in related:
-                resp['forum'] = forum_details(resp['forum'])
     return resp
 
-
+def isExist(thread_id):
+    thr = db.query("SELECT * from threads WHERE tid=%s", (thread_id))
+    return (1 if (thr.__len__() > 0 ) else 0)
 
 @mod.route("/create/",methods=["POST"])
 def create():
@@ -77,59 +89,73 @@ def create():
 
 @mod.route("/details/",methods=["GET"])
 def details():
-    json = request.json
+    json = getJson(request)
     check_required(json, ['thread'])
     if 'related' in json:
         thr = thread_details(json['thread'],json['related'])
     else:
         thr = thread_details(json['thread'])
-
     return send_resp(thr,"No such thread found")
 
 
 @mod.route("/list/",methods=["GET"])
 def list():
-    pass
+    json = getJson(request)
+    return send_resp(listThr(json))
 
 @mod.route("/listPosts/",methods=["GET"])
 def listPosts():
     pass
 
 
+
+
 @mod.route("/open/",methods=["POST"])
 def open():
-    json = request.json
- # thread_id = json["thread"]
-    resp = {u'code': 0, u'response': json}
-    return jsonify(resp)
+    return Moderate(getJson(request),'open')
 
 @mod.route("/remove/",methods=["POST"])
 def remove():
-    json = request.json
-    thread_id = json["thread"]
-    resp = {u'code': 0, u'response': json}
-    return jsonify(resp)
+    return Moderate(getJson(request),'remove')
 
 @mod.route("/restore/",methods=["POST"])
 def restore():
-    json = request.json
-    thread_id = json["thread"]
-    resp = {u'code': 0, u'response': json}
-    return jsonify(resp)
+    return Moderate(getJson(request),'restore')
+
+def subscribe_action(json,type):
+    check_required(json,['user','thread'])
+    uemail = id_by_email(json['user'])
+    act = 1 if (type == 'sub') else 0
+    query = "INSERT INTO subscriptions(users_id, threads_id,active) VALUES (%%s,%%s,%%s) ON DUPLICATE KEY UPDATE active=%s" % (act)
+    db.insert(query,(uemail, json['thread'],act))
 
 @mod.route("/subscribe/",methods=["POST"])
 def subscribe():
-    pass
+    json = getJson(request)
+    subscribe_action(json,'sub')
+    return send_resp(json)
 
 @mod.route("/unsubscribe/",methods=["POST"])
 def unsubscribe():
-    pass
+    json = getJson(request)
+    subscribe_action(json,'unsub')
+    return send_resp(json)
 
 @mod.route("/update/",methods=["POST"])
 def update():
-    pass
+    json = request.json
+    check_required(json, ['thread', 'slug', 'message'])
+    db.insert("UPDATE threads SET slug=%s, message=%s where tid=%s", (json['slug'], json['message'] , json['thread']))
+    return send_resp(thread_details(json['thread']),"No such thread found")
 
 @mod.route("/vote/",methods=["POST"])
 def vote():
-    pass
+    json = getJson(request)
+    check_required(json,['vote','thread'])
+    vt = int(json['vote'])
+    type = 'likes' if (vt > 0) else 'dislikes'
+    query = "UPDATE threads SET %s = %s + 1 where tid=%%s" % (type,type)
+    db.insert(query, json['thread'])
+    return send_resp(thread_details(json['thread']),"No such thread found")
+
 
