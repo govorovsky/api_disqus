@@ -4,8 +4,6 @@ import sys
 app = Flask(__name__)
 print 'init'
 
-
-
 from api.user import mod as user_api
 from api.forum import mod as forum_api
 from api.thread import mod as thread_api

@@ -1,9 +1,0 @@
-curl -X POST -H "Content-Type: application/json" -d  '{"username": "user31337", "about": "hello imuser1",  "email": "examplqe@2maisl1.ru", "name" : "da"}' localhost:5000/user/create/
-
-curl -X POST -H "Content-Type: application/json" -d  '{"follower": "dadsa", "followee": "example@mail.ru"}' localhost:5000/user/unfollow/
-
-curl -X GET -H "Content-Type: application/json" -d  '{ "user": "example@mail.ru"}'  localhost:5000/user/listFollowers/
-
-curl -X POST -H "Content-Type: application/json" -d  '{ "user" : "example@2maisl1.ru", "about" : "sweetnes", "name" : "WOWOWO"}'  localhost:5000/user/updateProfile/
-
-

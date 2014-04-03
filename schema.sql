@@ -95,14 +95,14 @@ CREATE TABLE IF NOT EXISTS `mydb`.`posts` (
   `edited` TINYINT NOT NULL DEFAULT 0,
   `spam` TINYINT NOT NULL DEFAULT 0,
   `highlighted` TINYINT NOT NULL DEFAULT 0,
-  `forums_id` INT UNSIGNED NOT NULL,
+  `forum_id` INT UNSIGNED NOT NULL,
   `likes` INT UNSIGNED NOT NULL DEFAULT 0,
   `dislikes` INT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`pid`),
   INDEX `fk_replies_topics1_idx` (`thread_id` ASC),
   INDEX `fk_replies_users1_idx` (`user_id` ASC),
   INDEX `fk_posts_posts1_idx` (`parent` ASC),
-  INDEX `fk_posts_forums1_idx` (`forums_id` ASC),
+  INDEX `fk_posts_forums1_idx` (`forum_id` ASC),
   CONSTRAINT `fk_replies_topics1`
     FOREIGN KEY (`thread_id`)
     REFERENCES `mydb`.`threads` (`tid`)
@@ -119,7 +119,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`posts` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_posts_forums1`
-    FOREIGN KEY (`forums_id`)
+    FOREIGN KEY (`forum_id`)
     REFERENCES `mydb`.`forums` (`fid`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
