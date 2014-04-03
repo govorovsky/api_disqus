@@ -68,12 +68,9 @@ def user_details(ident, method):
         user["subscriptions"] = get_subscriptions(uid)
         user["isAnonymous"] = bool(res[0]["anonymous"])
         user["email"] = res[0]["email"]
-        if user["isAnonymous"]:
-            user["name"] = None
-        else:  # Anon cant have about info and name?
-            user["username"] = res[0]["username"]
-            user["about"] = res[0]["about"]
-            user["name"] = res[0]["name"]
+        user["username"] = res[0]["username"]
+        user["about"] = res[0]["about"]
+        user["name"] = res[0]["name"]
     return user
 
 
@@ -249,7 +246,7 @@ def listing(json, what):
         order = json['order']
     else:
         order = 'desc'
-    type_order = 'date'  # if what is not 'user' else 'name'
+    type_order = 'date' if what is not 'user' else 'user_id'
     query += " ORDER BY %s %s" % (type_order, order)
     if 'limit' in json:
         query += " LIMIT %s" % (json['limit'])
