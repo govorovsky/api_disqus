@@ -18,8 +18,11 @@ class Database:
                 if data is None:
                     cursor.execute(query)
                 else:
-                    cursor.execute(query,(data,))
-                self.connection.commit()
+                    if type(data) is tuple:
+                        cursor.execute(query,data)
+                    else:
+                        cursor.execute(query,(data,))
+                    self.connection.commit()
             except:
                 print "Unexpected error:", sys.exc_info()
                 self.connection.rollback()
@@ -32,7 +35,10 @@ class Database:
             if data is None:
                 cursor.execute(query)
             else:
-                cursor.execute(query,(data,))
+                if type(data) is tuple:
+                    cursor.execute(query,data)
+                else:
+                    cursor.execute(query,(data,))
             data = cursor.fetchall()
             cursor.close()
             return data
