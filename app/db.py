@@ -32,7 +32,7 @@ class Database:
             if data is None:
                 cursor.execute(query)
             else:
-                cursor.execute(query,data)
+                cursor.execute(query,(data,))
             data = cursor.fetchall()
             cursor.close()
             return data
