@@ -3,7 +3,7 @@ from flask import Blueprint
 from app.utils.common_utils import *
 
 
-mod = Blueprint('thread', __name__, url_prefix='/gov/thread')
+mod = Blueprint('thread', __name__, url_prefix=prefix+'/thread')
 
 
 @mod.route("/close/", methods=["POST"])

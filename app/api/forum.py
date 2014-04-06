@@ -3,7 +3,7 @@ from flask import Blueprint
 from app.utils.common_utils import *
 
 
-mod = Blueprint('forum', __name__, url_prefix='/gov/forum')
+mod = Blueprint('forum', __name__, url_prefix=prefix+'/forum')
 
 
 @mod.route("/create/", methods=["POST"])

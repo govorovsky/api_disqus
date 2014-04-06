@@ -4,6 +4,9 @@ from flask import request, jsonify
 
 from app.db import db
 
+import time
+
+prefix='/db/api'
 
 tables = {
     'thread': ['tid', 'threads', 'all'],
