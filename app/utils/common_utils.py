@@ -78,7 +78,7 @@ def user_details(ident, method):
 
 
 def post_details(pid, related=None):
-    p = db.query("SELECT * FROM posts where pid = %s", pid)
+    p = db.query("SELECT * FROM posts where pid = %s", (pid))
     if p.__len__() > 0:
         post = {
             'parent': p[0]['parent'],
