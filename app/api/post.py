@@ -3,7 +3,7 @@ from flask import Blueprint
 from app.utils.common_utils import *
 
 
-mod = Blueprint('post', __name__, url_prefix='/gov/post')
+mod = Blueprint('post', __name__, url_prefix=prefix+'/post')
 
 
 @mod.route("/create/", methods=["POST"])
