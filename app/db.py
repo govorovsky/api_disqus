@@ -9,8 +9,10 @@ class Database:
     user = 'root'
     password = 'qazxsw12'
     db = 'mydb'
-    connection = MySQLdb.connect(host, user, password, db)
-
+    connection = MySQLdb.connect(host, user, password, db, use_unicode=True)
+    connection.set_character_set('utf8')
+    c=connection.cursor()
+    c.execute('SET NAMES utf8;')
     def insert(self, query, data=None):
         with Database.connection:
             cursor = self.connection.cursor()
