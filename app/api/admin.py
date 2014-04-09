@@ -9,8 +9,8 @@ import MySQLdb
 mod = Blueprint('admin', __name__, url_prefix=prefix + '/')
 
 
-@mod.route("clear/", methods=["GET"])
-@mod.route("clear", methods=["GET"])
+@mod.route("clear/", methods=['GET', 'POST'])
+@mod.route("clear", methods=['GET', 'POST'])
 def truncate():
     conn = MySQLdb.connect(host, user, password, forum_db)
     db = conn.cursor()
