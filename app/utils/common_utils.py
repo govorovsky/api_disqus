@@ -11,7 +11,8 @@ prefix='/db/api'
 tables = {
     'thread': ['tid', 'threads', 'all'],
     'post': ['pid', 'posts', 'all'],
-    'user': ['user_id', 'posts', 'distinct']
+    'user': ['user_id', 'posts', 'distinct'],
+    'forum' : ['shortname', 'forums']
 }
 
 def is_exist(what, id):
@@ -168,11 +169,6 @@ def user_by_email(email):
     return res[0]
 
 
-def id_by_slug(slug):
-    res = db.query("SELECT tid FROM threads where slug=%s", slug)
-    return res[0]['tid']
-
-
 def send_resp(data, msg=None):
     if (data.__len__() == 0) and ( msg is not None):
         return jsonify({u'code': 1, u'message': msg})
@@ -227,10 +223,6 @@ def listing(json, what):
     if 'thread' in json:
         how = 'thread_id'
         id = json['thread']
-        try:
-            int(id)
-        except:  # WTF
-            id = id_by_slug(id)
     if 'related' in json:
         related = json['related']
     else:

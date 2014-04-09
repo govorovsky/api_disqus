@@ -10,6 +10,8 @@ mod = Blueprint('forum', __name__, url_prefix=prefix+'/forum')
 def create():
     json = request.json
     check_required(json, ['name', 'short_name', 'user'])
+    if is_exist('forum', json['short_name']):
+        return send_resp({},'Such forum already exists fucker')
     uid = id_by_email(json['user'])
     db.insert("INSERT INTO forums (fname,shortname,founder_id) values (%s,%s,%s)",
               (json['name'], json['short_name'], uid))
