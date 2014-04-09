@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`forums` (
   `shortname` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`fid`),
   INDEX `fk_forums_users1_idx` (`founder_id` ASC),
-  UNIQUE INDEX `fname_UNIQUE` (`fname` ASC),
+  UNIQUE INDEX `shortname_UNIQUE` (`shortname` ASC),
   CONSTRAINT `fk_forums_users1`
     FOREIGN KEY (`founder_id`)
     REFERENCES `mydb`.`users` (`id`)

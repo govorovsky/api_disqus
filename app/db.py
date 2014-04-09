@@ -12,25 +12,24 @@ class Database:
         self.connect()
 
     def insert(self, query, data=None):
-        with self.connection:
-            try:
-                cursor = self.get_cursor(query, data)
-            except (AttributeError, MySQLdb.OperationalError):
-                self.connect()
-                cursor = self.get_cursor(query, data)
-            self.connection.commit()
-            cursor.close()
+        try:
+            cursor = self.get_cursor(query, data)
+        except (AttributeError, MySQLdb.OperationalError):
+            self.connect()
+            cursor = self.get_cursor(query, data)
+        self.connection.commit()
+        cursor.close()
 
     def query(self, query, data=None):
-        with self.connection:
-            try:
-                cursor = self.get_cursor(query, data)
-            except (AttributeError, MySQLdb.OperationalError):
-                self.connect()
-                cursor = self.get_cursor(query, data)
-            data = cursor.fetchall()
-            cursor.close()
-            return data
+        try:
+            cursor = self.get_cursor(query, data)
+        except (AttributeError, MySQLdb.OperationalError):
+            self.connect()
+            cursor = self.get_cursor(query, data)
+        data = cursor.fetchall()
+        self.connection.commit()
+        cursor.close()
+        return data
 
     def connect(self):
         self.connection = MySQLdb.connect(self.host, self.user, self.password, self.db, use_unicode=True)
