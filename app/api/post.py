@@ -3,7 +3,7 @@ from flask import Blueprint
 from app.utils.common_utils import *
 
 
-mod = Blueprint('post', __name__, url_prefix=prefix+'/post')
+mod = Blueprint('post', __name__, url_prefix=prefix + '/post')
 
 
 @mod.route("/create/", methods=["POST"])
@@ -44,7 +44,7 @@ def create():
         json['isDeleted'] = 0
     db.insert("""INSERT INTO posts (date,thread_id,message,user_id,forum_id,parent,approved,highlighted,edited,spam,deleted) 
                 values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""", (
-    json['date'], json['thread'], json['message'], uid, fid, parent, approved, highlighted, edited, spam, deleted))
+        json['date'], json['thread'], json['message'], uid, fid, parent, approved, highlighted, edited, spam, deleted))
 
     pid = db.query("SELECT LAST_INSERT_ID() as id")[0]['id']
     json['id'] = pid

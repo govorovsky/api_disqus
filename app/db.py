@@ -1,11 +1,7 @@
 import MySQLdb
-
+from config import *
 
 class Database:
-    host = 'localhost'
-    user = 'root'
-    password = 'qazxsw12'
-    db = 'mydb'
     connection = None
 
     def __init__(self):
@@ -32,7 +28,7 @@ class Database:
         return data
 
     def connect(self):
-        self.connection = MySQLdb.connect(self.host, self.user, self.password, self.db, use_unicode=True)
+        self.connection = MySQLdb.connect(host, user, password, forum_db, use_unicode=True)
         self.connection.set_character_set('utf8')
         c = self.connection.cursor()
         c.execute('SET NAMES utf8;')

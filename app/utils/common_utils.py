@@ -1,19 +1,18 @@
 import urlparse
 
-from flask import request, jsonify
+from flask import jsonify,request
 
 from app.db import db
 
-import time
-
-prefix='/db/api'
+prefix = '/db/api'
 
 tables = {
     'thread': ['tid', 'threads', 'all'],
     'post': ['pid', 'posts', 'all'],
     'user': ['user_id', 'posts', 'distinct'],
-    'forum' : ['shortname', 'forums']
+    'forum': ['shortname', 'forums']
 }
+
 
 def is_exist(what, id):
     thr = db.query("SELECT * from %s WHERE %s=%%s" % (tables[what][1], tables[what][0]), id)

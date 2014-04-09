@@ -3,7 +3,7 @@ from flask import Blueprint
 from app.utils.common_utils import *
 
 
-mod = Blueprint('forum', __name__, url_prefix=prefix+'/forum')
+mod = Blueprint('forum', __name__, url_prefix=prefix + '/forum')
 
 
 @mod.route("/create/", methods=["POST"])
@@ -11,7 +11,7 @@ def create():
     json = request.json
     check_required(json, ['name', 'short_name', 'user'])
     if is_exist('forum', json['short_name']):
-        return send_resp({},'Such forum already exists fucker')
+        return send_resp({}, 'Such forum already exists')
     uid = id_by_email(json['user'])
     db.insert("INSERT INTO forums (fname,shortname,founder_id) values (%s,%s,%s)",
               (json['name'], json['short_name'], uid))

@@ -3,7 +3,7 @@ from flask import Blueprint
 from app.utils.common_utils import *
 
 
-mod = Blueprint('user', __name__, url_prefix=prefix+'/user')
+mod = Blueprint('user', __name__, url_prefix=prefix + '/user')
 
 
 @mod.route("/create/", methods=["POST"])
@@ -64,7 +64,7 @@ def listFollow(json, who):
     id = user_by_email(json['user'])['id']
     params += (id,)
     query = """SELECT %s from followers inner join users u on %s=u.id where %s=%%s AND active=1""" % (
-    vals[t], vals[t], vals[(t + 1) % 2])
+        vals[t], vals[t], vals[(t + 1) % 2])
     if 'since_id' in json:
         query += ' AND %s >= %%s' % (vals[t] )
         params += (json['since_id'],)
