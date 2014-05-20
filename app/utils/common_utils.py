@@ -81,8 +81,6 @@ def user_details(ident, method, src=None):
 
 def post_details(pid, related=None):
     p = db.query("SELECT * FROM posts p join forums as f on f.fid = p.forum_id join users u on u.id = p.user_id where p.pid = %s" , (pid))
-    print 'DEBUG'
-    print p
     if p.__len__() > 0:
         post = {
             'parent': p[0]['parent'],
@@ -250,7 +248,6 @@ def listing(json, what):
     query += " ORDER BY %s %s" % (type_order, order)
     if 'limit' in json:
         query += " LIMIT %s" % (json['limit'])
-    print query
     lst = db.query(query, params)
     result = []
     if lst.__len__() > 0:
