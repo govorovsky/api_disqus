@@ -67,10 +67,9 @@ def user_details(ident, method, src=None):
         res = db.query(query, ident)
     user = {}
     if res.__len__() != 0:
-        uid = res[0]["id"]
+        user['id'] = uid = res[0]["id"]
         user["followers"] = get_followers(uid)
         user["following"] = get_following(uid)
-        user["id"] = uid
         user["subscriptions"] = get_subscriptions(uid)
         user["isAnonymous"] = bool(res[0]["anonymous"])
         user["email"] = res[0]["email"]
@@ -81,7 +80,9 @@ def user_details(ident, method, src=None):
 
 
 def post_details(pid, related=None):
-    p = db.query("SELECT * FROM posts where pid = %s", (pid))
+    p = db.query("SELECT * FROM posts p join forums as f on f.fid = p.forum_id join users u on u.id = p.user_id where p.pid = %s" , (pid))
+    print 'DEBUG'
+    print p
     if p.__len__() > 0:
         post = {
             'parent': p[0]['parent'],
@@ -100,49 +101,48 @@ def post_details(pid, related=None):
         }
         if related is not None:
             if 'user' in related:
-                post['user'] = user_details(p[0]['user_id'], 'id')
-            else:
-                post['user'] = email_by_id(p[0]['user_id'])
+                post['user'] = user_details(p[0]['user_id'], 'id', p)
             if 'thread' in related:
                 post['thread'] = thread_details(post['thread'])
             if 'forum' in related:
-                post['forum'] = forum_details(p[0]['forum_id'], 'fid')
-            else:
-                post['forum'] = sname_by_id(p[0]['forum_id'])
+                post['forum'] = forum_details(p[0]['forum_id'], 'fid', p)
+
+        if 'user' not in post:
+            post['user'] = p[0]['email']
+        if 'forum' not in post:
+            post['forum'] = p[0]['shortname']
         return post
     return {}
 
 
-def thread_details(thread, related=None):
+def thread_details(thread, related=None, src=None):
     query = "SELECT * from threads "
-    if related is not None:
-        if 'user' in related:
-            query += " JOIN users u ON user_id=u.id"
-        if 'forum' in related:
-            query += " JOIN forums f ON forum_id=f.fid"
+    query += " JOIN users u ON user_id=u.id"
+    query += " JOIN forums f ON forum_id=f.fid"
     query += " WHERE tid=%s"
-    thr = db.query(query, thread)
+    thr = db.query(query, thread) if src is None else src
+    p = 't.' if src is not None else ''
     resp = {}
     if thr.__len__() != 0:
         if related is not None:
             if 'user' in related:
-                resp['user'] = user_details(thr[0]['user_id'], 'id', thr)
+                resp['user'] = user_details(thr[0][p+'user_id'], 'id', thr)
             if 'forum' in related:
-                resp['forum'] = forum_details(thr[0]['forum_id'], 'fid', thr)
+                resp['forum'] = forum_details(thr[0][p+'forum_id'], 'fid', thr)
         if 'user' not in resp:
-            resp['user'] = email_by_id(thr[0]['user_id'])
+            resp['user'] = thr[0]['email']
         if 'forum' not in resp:
-            resp['forum'] = sname_by_id(thr[0]['forum_id'])
-        resp['date'] = str(thr[0]['date'])
+            resp['forum'] = thr[0]['shortname']
+        resp['date'] = str(thr[0][p+'date'])
         resp['title'] = thr[0]['title']
-        resp['message'] = thr[0]['message']
-        resp['dislikes'] = thr[0]['dislikes']
-        resp['likes'] = thr[0]['likes']
-        resp['points'] = thr[0]['likes'] - thr[0]['dislikes']
+        resp['message'] = thr[0][p+'message']
+        resp['dislikes'] = thr[0][p+'dislikes']
+        resp['likes'] = thr[0][p+'likes']
+        resp['points'] = thr[0][p+'likes'] - thr[0][p+'dislikes']
         resp['slug'] = thr[0]['slug']
         resp['id'] = thr[0]['tid']
         resp['isClosed'] = bool(thr[0]['closed'])
-        resp['isDeleted'] = bool(thr[0]['deleted'])
+        resp['isDeleted'] = bool(thr[0][p+'deleted'])
         resp['posts'] = count_posts(thr[0]['tid'])
     return resp
 
@@ -179,7 +179,7 @@ def user_by_email(email):
 
 
 def send_resp(data, msg=None):
-    if (data.__len__() == 0) and ( msg is not None):
+    if (data.__len__() == 0) and (msg is not None):
         return jsonify({u'code': 1, u'message': msg})
     return jsonify({u'code': 0, u'response': data})
 
