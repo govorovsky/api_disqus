@@ -50,8 +50,8 @@ def follow():
     json = request.json
     follower = json["follower"]
     followee = json["followee"]
-    follower_id = user_by_email(follower)['id']
-    followee_id = user_by_email(followee)['id']
+    follower_id = user_by_email(follower)
+    followee_id = user_by_email(followee)
     db.insert("INSERT INTO followers (follower,followee) values (%s, %s) ON DUPLICATE KEY UPDATE active=1",
               (follower_id, followee_id))
     return send_resp(user_details(follower_id, 'id'), "No such user found")
@@ -61,7 +61,7 @@ def listFollow(json, who):
     vals = ['follower', 'followee']
     t = 0 if who == 'follower' else 1
     params = ()
-    id = user_by_email(json['user'])['id']
+    id = user_by_email(json['user'])
     params += (id,)
     query = """SELECT %s from followers inner join users u on %s=u.id where %s=%%s AND active=1""" % (
         vals[t], vals[t], vals[(t + 1) % 2])
@@ -102,8 +102,8 @@ def unfollow():
     json = request.json
     follower = json["follower"]
     followee = json["followee"]
-    follower_id = user_by_email(follower)['id']
-    followee_id = user_by_email(followee)['id']
+    follower_id = user_by_email(follower)
+    followee_id = user_by_email(followee)
     db.insert("UPDATE followers SET active=0 where follower=%s AND followee=%s", (follower_id, followee_id))
     return send_resp(user_details(follower_id, 'id'), "No such user found")
 

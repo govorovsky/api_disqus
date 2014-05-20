@@ -1,6 +1,6 @@
 import urlparse
 
-from flask import jsonify,request
+from flask import jsonify, request
 
 from app.db import db
 
@@ -15,7 +15,7 @@ tables = {
 
 
 def is_exist(what, id):
-    thr = db.query("SELECT * from %s WHERE %s=%%s" % (tables[what][1], tables[what][0]), id)
+    thr = db.query("SELECT %s from %s WHERE %s=%%s" % (tables[what][0], tables[what][1], tables[what][0]), id)
     return 1 if (thr.__len__() > 0) else 0
 
 
@@ -52,16 +52,19 @@ def get_followers(id):
 
 
 def get_subscriptions(id):
-    res = db.query("SELECT * FROM subscriptions where users_id=%s AND active=1 order by threads_id desc", id)
+    res = db.query("SELECT threads_id FROM subscriptions where users_id=%s AND active=1 order by threads_id desc", id)
     result = []
     for subs in res:
         result.append(subs['threads_id'])
     return result
 
 
-def user_details(ident, method):
+def user_details(ident, method, src=None):
     query = "SELECT * FROM users where %s=%%s" % method
-    res = db.query(query, ident)
+    if src is not None:
+        res = src
+    else:
+        res = db.query(query, ident)
     user = {}
     if res.__len__() != 0:
         uid = res[0]["id"]
@@ -111,14 +114,21 @@ def post_details(pid, related=None):
 
 
 def thread_details(thread, related=None):
-    thr = db.query("SELECT * from threads WHERE tid=%s", thread)
+    query = "SELECT * from threads "
+    if related is not None:
+        if 'user' in related:
+            query += " JOIN users u ON user_id=u.id"
+        if 'forum' in related:
+            query += " JOIN forums f ON forum_id=f.fid"
+    query += " WHERE tid=%s"
+    thr = db.query(query, thread)
     resp = {}
     if thr.__len__() != 0:
-        if related is not None:  # place for optimization
+        if related is not None:
             if 'user' in related:
-                resp['user'] = user_details(thr[0]['user_id'], 'id')
+                resp['user'] = user_details(thr[0]['user_id'], 'id', thr)
             if 'forum' in related:
-                resp['forum'] = forum_details(sname_by_id(thr[0]['forum_id']))
+                resp['forum'] = forum_details(thr[0]['forum_id'], 'fid', thr)
         if 'user' not in resp:
             resp['user'] = email_by_id(thr[0]['user_id'])
         if 'forum' not in resp:
@@ -164,8 +174,8 @@ def email_by_id(id):
 
 
 def user_by_email(email):
-    res = db.query("SELECT * FROM users where email=%s", email)
-    return res[0]
+    res = db.query("SELECT id FROM users where email=%s", email)
+    return res[0]['id']
 
 
 def send_resp(data, msg=None):
@@ -198,13 +208,9 @@ def sname_by_id(id):
     return name[0]['shortname']
 
 
-def forum_details(forum, how=None):
+def forum_details(forum, how, src=None):
     details = {}
-    if how is not None:
-        id = how
-    else:
-        id = 'shortname'
-    res = db.query("SELECT * from forums where %s=%%s" % id, forum)
+    res = db.query("SELECT * from forums where %s=%%s" % how, forum) if(src is None) else src
     details['id'] = res[0]['fid']
     details['short_name'] = res[0]['shortname']
     details['name'] = res[0]['fname']

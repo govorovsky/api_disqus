@@ -24,7 +24,7 @@ def create():
 def details():
     json = getJson(request)
     check_required(json, ['forum'])
-    det = forum_details(json['forum'])
+    det = forum_details(json['forum'], 'shortname')
     if det.__len__() != 0:
         if 'related' in json:
             if 'user' in json['related']:
