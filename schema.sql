@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`threads` (
   PRIMARY KEY (`tid`),
   INDEX `fk_topics_forums_idx` (`forum_id` ASC),
   INDEX `fk_topics_users1_idx` (`user_id` ASC),
+  INDEX `date_ix` (`date` ASC),
   CONSTRAINT `fk_topics_forums`
     FOREIGN KEY (`forum_id`)
     REFERENCES `mydb`.`forums` (`fid`)
@@ -103,6 +104,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`posts` (
   INDEX `fk_replies_users1_idx` (`user_id` ASC),
   INDEX `fk_posts_posts1_idx` (`parent` ASC),
   INDEX `fk_posts_forums1_idx` (`forum_id` ASC),
+  INDEX `date_ix` (`date` ASC),
   CONSTRAINT `fk_replies_topics1`
     FOREIGN KEY (`thread_id`)
     REFERENCES `mydb`.`threads` (`tid`)
