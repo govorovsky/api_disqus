@@ -3,6 +3,7 @@ from config import *
 
 class Database:
     connection = None
+    isIns = False
 
     def __init__(self):
         self.connect()
@@ -13,7 +14,8 @@ class Database:
         except (AttributeError, MySQLdb.OperationalError):
             self.connect()
             cursor = self.get_cursor(query, data)
-        self.connection.commit()
+        #self.connection.commit()
+        self.isIns = True # for batch insert :)
         cursor.close()
 
     def query(self, query, data=None):
@@ -22,6 +24,9 @@ class Database:
         except (AttributeError, MySQLdb.OperationalError):
             self.connect()
             cursor = self.get_cursor(query, data)
+        if self.isIns:
+            self.connection.commit()
+            self.isIns = False
         data = cursor.fetchall()
         self.connection.commit()
         cursor.close()

@@ -119,28 +119,27 @@ def thread_details(thread, related=None, src=None):
     query += " JOIN forums f ON forum_id=f.fid"
     query += " WHERE tid=%s"
     thr = db.query(query, thread) if src is None else src
-    p = 't.' if src is not None else ''
     resp = {}
     if thr.__len__() != 0:
         if related is not None:
             if 'user' in related:
-                resp['user'] = user_details(thr[0][p+'user_id'], 'id', thr)
+                resp['user'] = user_details(thr[0]['user_id'], 'id', thr)
             if 'forum' in related:
-                resp['forum'] = forum_details(thr[0][p+'forum_id'], 'fid', thr)
+                resp['forum'] = forum_details(thr[0]['forum_id'], 'fid', thr)
         if 'user' not in resp:
             resp['user'] = thr[0]['email']
         if 'forum' not in resp:
             resp['forum'] = thr[0]['shortname']
-        resp['date'] = str(thr[0][p+'date'])
+        resp['date'] = str(thr[0]['date'])
         resp['title'] = thr[0]['title']
-        resp['message'] = thr[0][p+'message']
-        resp['dislikes'] = thr[0][p+'dislikes']
-        resp['likes'] = thr[0][p+'likes']
-        resp['points'] = thr[0][p+'likes'] - thr[0][p+'dislikes']
+        resp['message'] = thr[0]['message']
+        resp['dislikes'] = thr[0]['dislikes']
+        resp['likes'] = thr[0]['likes']
+        resp['points'] = thr[0]['likes'] - thr[0]['dislikes']
         resp['slug'] = thr[0]['slug']
         resp['id'] = thr[0]['tid']
         resp['isClosed'] = bool(thr[0]['closed'])
-        resp['isDeleted'] = bool(thr[0][p+'deleted'])
+        resp['isDeleted'] = bool(thr[0]['deleted'])
         resp['posts'] = count_posts(thr[0]['tid'])
     return resp
 
