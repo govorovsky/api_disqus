@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`users` (
   `username` VARCHAR(45) NULL,
   `email` VARCHAR(45) NOT NULL,
   `anonymous` TINYINT(1) UNSIGNED NULL DEFAULT 0,
-  `about` VARCHAR(200) NULL,
+  `about` VARCHAR(300) NULL,
   `name` VARCHAR(45) NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC))
