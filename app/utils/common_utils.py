@@ -172,7 +172,9 @@ def email_by_id(id):
 
 def user_by_email(email):
     res = db.query("SELECT id FROM users where email=%s", email)
-    return res[0]['id']
+    if res.__len__() > 0:
+        return res[0]['id']
+    return -1
 
 
 def send_resp(data, msg=None):
@@ -212,14 +214,17 @@ def sname_by_id(id):
 def forum_details(forum, how, src=None):
     details = {}
     res = db.query("SELECT * from forums where %s=%%s" % how, forum) if(src is None) else src
-    details['id'] = res[0]['fid']
-    details['short_name'] = res[0]['shortname']
-    details['name'] = res[0]['fname']
-    details['user'] = email_by_id(res[0]['founder_id'])
+    if res.__len__() > 0:
+        details['id'] = res[0]['fid']
+        details['short_name'] = res[0]['shortname']
+        details['name'] = res[0]['fname']
+        details['user'] = email_by_id(res[0]['founder_id'])
     return details
 
 
 def listing(json, what):
+    how = ''
+    id = -1
     if 'thread' in json and what in ['post']:
         how = 'thread_id'
         id = json['thread']
@@ -234,7 +239,9 @@ def listing(json, what):
     else:
         related = []
 
-    if id < 0:
+    if id < 0 or how == '':
+        print 'DEBUG'
+        print id
         return []
 
     query = "SELECT %s %s FROM %s where %s=%%s" % (tables[what][2], tables[what][0], tables[what][1], how)
@@ -254,8 +261,11 @@ def listing(json, what):
     query += " ORDER BY %s %s" % (type_order, order)
     if 'limit' in json:
         query += " LIMIT %s" % (json['limit'])
+    print query
     lst = db.query(query, params)
     print params
+    print 'LIST IDs'
+    print lst
     result = []
     if lst.__len__() > 0:
         if what == 'user':

@@ -62,6 +62,8 @@ def listFollow(json, who):
     t = 0 if who == 'follower' else 1
     params = ()
     id = user_by_email(json['user'])
+    if id < 0:
+        return send_resp({}, "No such user found")
     params += (id,)
     query = """SELECT %s from followers inner join users u on %s=u.id where %s=%%s AND active=1""" % (
         vals[t], vals[t], vals[(t + 1) % 2])
@@ -75,7 +77,7 @@ def listFollow(json, who):
     query += ' ORDER BY u.name %s ' % (order)
     if 'limit' in json:
         query += ' LIMIT %s' % (json['limit'])
-    followers = db.query(query, params);
+    followers = db.query(query, params)
     result = []
     for flw in followers:
         result.append(user_details(flw[vals[t]], 'id'))
@@ -104,6 +106,8 @@ def unfollow():
     followee = json["followee"]
     follower_id = user_by_email(follower)
     followee_id = user_by_email(followee)
+    if followee_id < 0 or follower_id < 0:
+        return send_resp({}, "No such user found")
     db.insert("UPDATE followers SET active=0 where follower=%s AND followee=%s", (follower_id, followee_id))
     return send_resp(user_details(follower_id, 'id'), "No such user found")
 

@@ -52,7 +52,7 @@ def details():
 @mod.route("/list/", methods=["GET"])
 def list():
     json = getJson(request)
-    return send_resp(listing(json, 'thread'),"No entries")
+    return send_resp(listing(json, 'thread'))
 
 
 @mod.route("/listPosts/", methods=["GET"])
