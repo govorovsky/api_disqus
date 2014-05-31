@@ -18,7 +18,7 @@ def create():
     db.insert("INSERT INTO forums (fname,shortname,founder_id) values (%s,%s,%s)",
               (json['name'], json['short_name'], uid))
     #fid = db.query("SELECT LAST_INSERT_ID() as id")
-    fid = db.query("SELECT fid from forumds where shortname=%s", json['short_name'])
+    fid = db.query("SELECT fid from forums where shortname=%s", json['short_name'])
     json['id'] = fid[0]['fid']
     return send_resp(json)
 
