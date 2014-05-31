@@ -28,12 +28,16 @@ def create():
     uid = id_by_email(json["user"])
     fid = id_by_sname(json["forum"])
 
+    if uid < 0 or fid < 0:
+        return send_resp(json)
+
     db.insert("""INSERT INTO threads (title, slug, forum_id, closed, deleted, user_id, date, message) 
                  values (%s,%s,%s,%s,%s,%s,%s,%s) """,
               (json["title"], json["slug"], fid, closed, deleted, uid, json['date'], json['message']))
 
-    tid = db.query("SELECT LAST_INSERT_ID() as id")
-    json['id'] = tid[0]['id']
+    #tid = db.query("SELECT LAST_INSERT_ID() as id")
+    tid = db.query("SELECT tid from threads where slug = %s", json['slug'])
+    json['id'] = tid[0]['tid']
 
     return send_resp(json)
 
@@ -80,6 +84,8 @@ def restore():
 def subscribe_action(json, type):
     check_required(json, ['user', 'thread'])
     uemail = id_by_email(json['user'])
+    if uemail < 0:
+        return
     act = 1 if (type == 'sub') else 0
     query = "INSERT INTO subscriptions(users_id, threads_id,active) VALUES (%%s,%%s,%%s) ON DUPLICATE KEY UPDATE active=%s" % (
         act)

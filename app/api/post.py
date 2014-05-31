@@ -12,6 +12,8 @@ def create():
     check_required(json, ['date', 'thread', 'message', 'user', 'forum'])
     uid = id_by_email(json['user'])
     fid = id_by_sname(json['forum'])
+    if uid < 0 or fid < 0:
+        return send_resp(json)
     if 'parent' in json:
         parent = json['parent']
     else:

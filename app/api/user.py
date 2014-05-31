@@ -22,8 +22,8 @@ def create():
 
     if resp["isAnonymous"] is True:
         db.insert("INSERT INTO users(email,anonymous) values (%s,%s) ", (resp["email"], resp["isAnonymous"]))
-    	id  = id_by_email(json['email'])
-    	resp["id"] = id
+        id = id_by_email(json['email'])
+        resp["id"] = id
         resp['name'] = None
         resp = {u'code': 0, u'response': resp}
         return jsonify(resp)
@@ -33,7 +33,7 @@ def create():
     db.insert("INSERT INTO users(username,email,about,name) values (%s,%s,%s,%s) ",
               (resp["username"], resp["email"], resp["about"], resp["name"]))
     #id = db.query("SELECT LAST_INSERT_ID() as id")
-    id  = id_by_email(json['email'])
+    id = id_by_email(json['email'])
     resp["id"] = id
     resp = {u'code': 0, u'response': resp}
     return jsonify(resp)
@@ -53,6 +53,8 @@ def follow():
     followee = json["followee"]
     follower_id = user_by_email(follower)
     followee_id = user_by_email(followee)
+    if followee_id < 0 or follower_id < 0:
+        return send_resp({}, "No such user found")
     db.insert("INSERT INTO followers (follower,followee) values (%s, %s) ON DUPLICATE KEY UPDATE active=1",
               (follower_id, followee_id))
     return send_resp(user_details(follower_id, 'id'), "No such user found")

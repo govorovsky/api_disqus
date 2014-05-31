@@ -13,10 +13,13 @@ def create():
     if is_exist('forum', json['short_name']):
         return send_resp({}, 'Such forum already exists')
     uid = id_by_email(json['user'])
+    if uid < 0:
+        return send_resp(json)
     db.insert("INSERT INTO forums (fname,shortname,founder_id) values (%s,%s,%s)",
               (json['name'], json['short_name'], uid))
-    fid = db.query("SELECT LAST_INSERT_ID() as id")
-    json['id'] = fid[0]['id']
+    #fid = db.query("SELECT LAST_INSERT_ID() as id")
+    fid = db.query("SELECT fid from forumds where shortname=%s", json['short_name'])
+    json['id'] = fid[0]['fid']
     return send_resp(json)
 
 
