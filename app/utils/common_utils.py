@@ -197,7 +197,11 @@ def check_required(json, vars):
 
 def id_by_sname(name):
     id = db.query("SELECT fid from forums where shortname=%s", name)
-    return id[0]['fid']
+    print id
+    if id.__len__() > 0:
+        return id[0]['fid']
+    else:
+        return -1
 
 
 def sname_by_id(id):
@@ -216,19 +220,22 @@ def forum_details(forum, how, src=None):
 
 
 def listing(json, what):
-    if 'forum' in json:
-        how = 'forum_id'
-        id = id_by_sname(json['forum'])
-    if 'user' in json:
-        how = 'user_id'
-        id = id_by_email(json['user'])
-    if 'thread' in json:
+    if 'thread' in json and what in ['post']:
         how = 'thread_id'
         id = json['thread']
+    if 'forum' in json and what in ['post', 'thread', 'user']:
+        how = 'forum_id'
+        id = id_by_sname(json['forum'])
+    if 'user' in json and what in ['post', 'thread']:
+        how = 'user_id'
+        id = id_by_email(json['user'])
     if 'related' in json:
         related = json['related']
     else:
         related = []
+
+    if id < 0:
+        return []
 
     query = "SELECT %s %s FROM %s where %s=%%s" % (tables[what][2], tables[what][0], tables[what][1], how)
     params = ()
@@ -248,6 +255,7 @@ def listing(json, what):
     if 'limit' in json:
         query += " LIMIT %s" % (json['limit'])
     lst = db.query(query, params)
+    print params
     result = []
     if lst.__len__() > 0:
         if what == 'user':
