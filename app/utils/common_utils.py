@@ -199,7 +199,6 @@ def check_required(json, vars):
 
 def id_by_sname(name):
     id = db.query("SELECT fid from forums where shortname=%s", name)
-    print id
     if id.__len__() > 0:
         return id[0]['fid']
     else:
@@ -240,8 +239,6 @@ def listing(json, what):
         related = []
 
     if id < 0 or how == '':
-        print 'DEBUG'
-        print id
         return []
 
     query = "SELECT %s %s FROM %s where %s=%%s" % (tables[what][2], tables[what][0], tables[what][1], how)
@@ -261,11 +258,7 @@ def listing(json, what):
     query += " ORDER BY %s %s" % (type_order, order)
     if 'limit' in json:
         query += " LIMIT %s" % (json['limit'])
-    print query
     lst = db.query(query, params)
-    print params
-    print 'LIST IDs'
-    print lst
     result = []
     if lst.__len__() > 0:
         if what == 'user':
