@@ -13,11 +13,11 @@ DROP TABLE IF EXISTS `mydb`.`users` ;
 
 CREATE TABLE IF NOT EXISTS `mydb`.`users` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `username` VARCHAR(45) NULL,
-  `email` VARCHAR(45) NOT NULL,
+  `username` VARCHAR(255) NULL,
+  `email` VARCHAR(255) NOT NULL,
   `anonymous` TINYINT(1) UNSIGNED NULL DEFAULT 0,
-  `about` VARCHAR(200) NULL,
-  `name` VARCHAR(45) NULL,
+  `about` VARCHAR(300) NULL,
+  `name` VARCHAR(255) NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC))
 ENGINE = InnoDB;
