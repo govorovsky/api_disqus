@@ -1,5 +1,6 @@
 import MySQLdb
 from config import *
+print 'db init'
 
 class Database:
     connection = None

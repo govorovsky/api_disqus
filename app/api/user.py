@@ -22,8 +22,8 @@ def create():
 
     if resp["isAnonymous"] is True:
         db.insert("INSERT INTO users(email,anonymous) values (%s,%s) ", (resp["email"], resp["isAnonymous"]))
-        id = db.query("SELECT LAST_INSERT_ID() as id")
-        resp["id"] = id[0]["id"]
+    	id  = id_by_email(json['email'])
+    	resp["id"] = id
         resp['name'] = None
         resp = {u'code': 0, u'response': resp}
         return jsonify(resp)
@@ -32,8 +32,9 @@ def create():
     resp["about"] = json["about"]
     db.insert("INSERT INTO users(username,email,about,name) values (%s,%s,%s,%s) ",
               (resp["username"], resp["email"], resp["about"], resp["name"]))
-    id = db.query("SELECT LAST_INSERT_ID() as id")
-    resp["id"] = id[0]["id"]
+    #id = db.query("SELECT LAST_INSERT_ID() as id")
+    id  = id_by_email(json['email'])
+    resp["id"] = id
     resp = {u'code': 0, u'response': resp}
     return jsonify(resp)
 

@@ -1,7 +1,7 @@
 from flask import Flask
 
 app = Flask(__name__)
-print 'init'
+app.config['DEBUG'] = False
 
 from api.user import mod as user_api
 from api.forum import mod as forum_api
@@ -14,3 +14,7 @@ app.register_blueprint(forum_api)
 app.register_blueprint(thread_api)
 app.register_blueprint(post_api)
 app.register_blueprint(admin_api)
+
+if __name__ == '__main__':
+   print 'init'
+   app.run()
